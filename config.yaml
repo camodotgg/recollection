@@ -1,0 +1,25 @@
+# Recollection Configuration File
+# This file contains application settings for the content summarization tool
+
+# Model configurations for different tasks
+models:
+  # Summarization model configuration
+  summarization:
+    model_id: gpt-4o-mini
+    temperature: 0.3
+    max_tokens: 4096
+    timeout: 60.0
+
+  # Future model configurations can be added here
+  # Example:
+  # analysis:
+  #   model_id: gpt-4o
+  #   temperature: 0.5
+  #   max_tokens: 2048
+  #   timeout: 30.0
+
+# API Keys
+# Create a .env file in the project root with your API keys:
+#   ANTHROPIC_API_KEY=your_key_here
+#   OPENAI_API_KEY=your_key_here
+# See .example.env for a template

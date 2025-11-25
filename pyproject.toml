@@ -1,0 +1,27 @@
+[project]
+name = "recollection"
+version = "0.1.0"
+description = "A content summarization and learning tool"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "pydantic>=2.12.4",
+    "pyyaml>=6.0.0",
+    "python-dotenv>=1.0.0",
+    "langchain>=0.3.0",
+    "langchain-community>=0.3.0",
+    "langchain-anthropic>=0.3.0",
+    "langchain-openai>=0.3.0",
+    "pypdf>=5.1.0",
+    "youtube-transcript-api>=0.6.0",
+    "beautifulsoup4>=4.12.0",
+    "anthropic>=0.40.0",
+    "openai>=1.0.0",
+    "pytube>=15.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0.0",
+    "pytest-mock>=3.12.0",
+]
