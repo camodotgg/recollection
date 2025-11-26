@@ -147,7 +147,7 @@ def _extract_summary_text(content: Content) -> str:
 
     if content.summary.chapters:
         for i, chapter in enumerate(content.summary.chapters, 1):
-            parts.append(f"# Chapter {i}: {chapter.title}\n{chapter.summary}")
+            parts.append(f"# Chapter {i}: {chapter.heading}\n{chapter.body}")
 
     if content.summary.conclusion:
         parts.append(f"# Conclusion\n{content.summary.conclusion}")

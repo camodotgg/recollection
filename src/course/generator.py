@@ -141,9 +141,9 @@ def _determine_course_metadata(
     Returns:
         Dictionary with title, description, objective, difficulty_level
     """
-    # Use first content's title as base, or generate generic title
+    # Use first content's origin as base, or generate generic title
     if merged.contents:
-        base_title = merged.contents[0].source.title or "Untitled Content"
+        base_title = merged.contents[0].source.origin or merged.contents[0].source.link or "Untitled Content"
     else:
         base_title = "Course"
 
