@@ -54,12 +54,13 @@ CONCLUSION:
 [Your conclusion here]
 """)
 
-    # Generate summary using LLM
     chain = prompt_template | llm
-    response = chain.invoke({"text": full_text[:15000]})  # Limit to prevent token overflow
+    # FIXME: parse the whole document in a map/reduce?
+    response = chain.invoke({"text": full_text[:15000]})
 
-    # Parse the response
-    summary_dict = _parse_summary_response(response.content)
+    content = str(response.content)
+
+    summary_dict = _parse_summary_response(content)
 
     return Summary(
         abstract=Section(

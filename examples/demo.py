@@ -4,7 +4,7 @@ from pathlib import Path
 # Add parent directory to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from src.content.loader.magic import MagicLoader
+from src.content.loader.magic import load
 from src.content.loader.detector import detect_content_type
 from src.config import get_config
 
@@ -52,12 +52,8 @@ def main():
             format_type = detect_content_type(url)
             print(f"Detected format: {format_type.value}")
 
-            # Create loader with LLM
-            loader = MagicLoader(llm)
-            print("\nLoading and generating summary...")
-
             # Load content
-            content = loader.load(url)
+            content = load(llm, url)
 
             print("\n✓ Content loaded successfully!")
             print(f"\nSource: {content.source.origin}")

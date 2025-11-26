@@ -2,7 +2,6 @@ from enum import Enum
 from typing import Any, Dict, Sequence
 from datetime import datetime
 from pathlib import Path
-import json
 
 from pydantic import BaseModel
 
@@ -94,11 +93,66 @@ class Content(BaseModel):
             Content object
         """
         return cls.model_validate(data)
+    
+    def render(self):
+        s = self.summary
+        src = self.source
+
+        chapters_md = "\n".join(
+            f"### Chapter {i+1}: {ch.heading}\n\n{ch.body}\n"
+            for i, ch in enumerate(s.chapters)
+        )
+
+        metadata_md = "\n".join(f"- **{k}**: {v}" for k, v in self.metadata.items())
+
+        return f"""# Content Summary
+
+## Abstract
+**{s.abstract.heading}**  
+{s.abstract.body}
+
+## Introduction
+**{s.introduction.heading}**  
+{s.introduction.body}
+
+## Chapters
+{chapters_md}
+
+## Conclusion
+**{s.conclusion.heading}**  
+{s.conclusion.body}
+
+# Source Information
+- **Author**: {src.author}
+- **Origin**: {src.origin}
+- **Link**: {src.link}
+- **Created At**: {src.created_at.isoformat()}
+- **Format**: {src.format.value}
+
+# Raw Content
+{self.raw}
+
+# Metadata
+{metadata_md}
+""".strip()
+
 
 # ===
 
-class Genre(BaseModel):
-    pass 
+class Genre(str, Enum):
+    TUTORIAL = "tutorial"
+    COMMENTARY = "commentary"
+    REVIEW = "review"
+    NEWS = "news"
+    ANALYSIS = "analysis"
+    INTERVIEW = "interview"
+    OPINION = "opinion"
+    ENTERTAINMENT = "entertainment"
+    EDUCATIONAL = "educational"
+    STORYTIME = "storytime"
+    DEMONSTRATION = "demonstration"
+    DOCUMENTARY = "documentary"
+    UNKNOWN = "unknown"
 
 class Topic(BaseModel):
     name: str
@@ -107,7 +161,7 @@ class Topic(BaseModel):
 class AnalysisComponent(BaseModel):
     pass
 
-class ContentAnalysis(BaseModel):
+class AnalyzedContent(BaseModel):
     genre: Genre
     topics: Sequence[Topic]
 

@@ -10,6 +10,13 @@ models:
     max_tokens: 4096
     timeout: 60.0
 
+  # Course generation model configuration
+  course_generation:
+    model_id: gpt-4o-mini
+    temperature: 0.7  # Higher for creativity in lesson design
+    max_tokens: 4096
+    timeout: 90.0
+
   # Future model configurations can be added here
   # Example:
   # analysis:

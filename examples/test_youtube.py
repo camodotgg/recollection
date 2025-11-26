@@ -8,7 +8,7 @@ from pathlib import Path
 # Add parent directory to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from src.content.loader.magic import MagicLoader
+from src.content.loader.magic import load
 from src.content.models import Content
 from src.config import get_config
 
@@ -36,15 +36,10 @@ def main():
         # Create LLM
         llm = config.create_llm()
         print(f"✓ LLM initialized")
-
-        # Create loader
-        loader = MagicLoader(llm)
-        print(f"✓ MagicLoader created")
-
         # Load the video
         print(f"\n⏳ Loading video and generating summary...")
         print("   (This may take a minute...)")
-        content = loader.load(youtube_url)
+        content = load(llm, youtube_url)
 
         # Display results
         print("\n" + "=" * 60)

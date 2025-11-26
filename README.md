@@ -1,249 +1,165 @@
-# recollection
+<h1 align="center">
+  recollection
+</h1>
 
-A content summarization and learning tool that automatically loads content from various sources and generates structured summaries using LLM.
+<div align="center">
+  <h3>
+    Transform any content into structured learning courses. <br/>
+    Automatically analyze and generate personalized lessons from web articles, PDFs, and videos.
+  </h3>
+</div>
+
+<br />
+
+<p align="center">
+  <a href="https://github.com/camo/recollection/blob/main/LICENSE">
+    <img alt="MIT license" src="https://img.shields.io/badge/license-MIT-blue.svg" />
+  </a>
+  <a href="https://python.org">
+    <img alt="Python 3.13+" src="https://img.shields.io/badge/python-3.13+-blue.svg" />
+  </a>
+</p>
 
 ## Features
 
-### Magic Loader
+**Content Loading:**
+- 🌐 **Web URLs** - Articles, blog posts, documentation
+- 📄 **PDF Documents** - Local files and remote URLs
+- 🎥 **YouTube Videos** - Automatic transcript extraction
+- 📝 **Text Files** - Markdown and plain text support
 
-The Magic Loader automatically detects content type from URLs or file paths and loads content using LangChain's document loader ecosystem. It supports:
+**Course Generation:**
+- 🎯 **Smart Lesson Design** - LLM analyzes content and creates optimal lesson structure
+- 📚 **Genre-Aware Strategies** - Different approaches for tutorials, documentaries, news, and analysis
+- ✅ **Learning Objectives** - Clear, actionable goals for each lesson
+- 🎓 **Key Takeaways** - Essential insights and skills to master
+- 🔗 **Source Traceability** - Links back to original content
+- 📊 **Multi-Content Support** - Combine multiple sources into unified courses
 
-- **Web URLs** - Articles, blog posts, web pages
-- **PDF Documents** - Local files and remote URLs
-- **YouTube Videos** - Automatic transcript extraction
-- **Text Files** - Local `.txt` and `.md` files
-
-Each source is loaded and summarized with:
-- Abstract (2-3 sentence overview)
-- Introduction (context and themes)
-- Chapters (logical sections with headings)
-- Conclusion (key takeaways)
-
-## Installation
+## Quick Start
 
 ```bash
 # Install dependencies
 uv sync
 
-# Install with dev dependencies (includes pytest)
-uv sync --extra dev
-
 # Set up API keys
 cp .example.env .env
-# Then edit .env and add your API key(s)
+# Edit .env and add your OPENAI_API_KEY or ANTHROPIC_API_KEY
+
+# Launch the interactive TUI app 🎨
+uv run python examples/app.py
 ```
+
+**The TUI provides a beautiful interactive interface for:**
+- 📥 Loading content from URLs
+- 🎓 Generating courses with AI
+- 📖 Viewing and managing courses
+- 💾 Saving/loading courses
 
 ## Usage
 
-### Basic Detection Test
-
-```bash
-python examples/demo.py
-```
-
-### Load and Summarize Content
-
-```bash
-# Make sure you've set up your .env file with API keys (see Installation)
-
-# Load a web article
-uv run python examples/demo.py https://example.com/article
-
-# Load a PDF
-uv run python examples/demo.py https://example.com/document.pdf
-
-# Load a YouTube video
-uv run python examples/demo.py https://youtube.com/watch?v=video_id
-```
-
-### Programmatic Usage
-
 ```python
-from src.content.loader.magic import MagicLoader
+from src.content.loader.magic import load
+from src.course import generate_course
 from src.config import get_config
 
-# Get config and create LLM for summarization task
+# Load configuration
 config = get_config()
-llm = config.create_llm("summarization")  # or just config.create_llm() - defaults to "summarization"
+analysis_llm = config.create_llm("summarization")
+course_llm = config.create_llm("course_generation")
 
-# Create loader with LLM (reusable for multiple loads)
-loader = MagicLoader(llm)
+# Load content
+content = load(analysis_llm, "https://realpython.com/python-decorators/")
 
-# Load content from multiple sources
-content1 = loader.load("https://example.com/article")
-content2 = loader.load("https://example.com/paper.pdf")
-content3 = loader.load("https://youtube.com/watch?v=xyz")
+# Generate course
+course = generate_course(llm=course_llm, contents=[content])
 
-# Access structured data
-print(content1.summary.abstract.body)
-print(content1.summary.introduction.body)
-for chapter in content1.summary.chapters:
-    print(f"{chapter.heading}: {chapter.body}")
-print(content1.summary.conclusion.body)
-
-# Access source metadata
-print(f"Author: {content1.source.author}")
-print(f"Format: {content1.source.format.value}")
-
-# Access raw content
-print(content1.raw)
+# Save course
+course.to_json_file("my_course.json")
 ```
 
-## Testing
+## Documentation
 
-Run the test suite with pytest:
+For detailed information, see [Course Generation Guide](docs/COURSE_GENERATION.md)
+
+## Configuration
+
+Configure models in `config.yaml`:
+
+```yaml
+models:
+  summarization:
+    model_id: gpt-4o-mini
+    temperature: 0.3
+    max_tokens: 4096
+    timeout: 60.0
+
+  course_generation:
+    model_id: gpt-4o-mini
+    temperature: 0.7
+    max_tokens: 4096
+    timeout: 90.0
+```
+
+**Supported Models:**
+- **Anthropic:** `claude-3-5-sonnet-20241022`, `claude-3-5-haiku-20241022`
+- **OpenAI:** `gpt-4o`, `gpt-4o-mini`, `gpt-3.5-turbo`
+
+## How It Works
+
+1. **Load Content** - Automatically detect and load from various sources
+2. **Analyze** - LLM classifies genre and extracts key topics
+3. **Generate** - Strategy pattern creates optimal lesson structure
+4. **Structure** - Organize into lessons with objectives and takeaways
+
+## Examples
 
 ```bash
-# Run all tests
-uv run pytest
+# Interactive TUI app (recommended) 🎨
+uv run python examples/app.py
 
-# Run with verbose output
-uv run pytest -v
-
-# Run specific test file
-uv run pytest tests/test_config.py
-
-# Run specific test
-uv run pytest tests/test_config.py::test_default_config
+# Command-line examples
+uv run python examples/demo.py https://example.com/article
+uv run python -m examples.test_course_generation
+uv run python -m examples.generate_course_from_url
 ```
-
-The test suite includes:
-- **test_config.py** - Configuration system tests (7 tests)
-- **test_detector.py** - Content type detection tests (8 tests)
-- **test_llm.py** - LLM factory and provider tests (6 tests)
-- **test_magic_loader.py** - MagicLoader unit tests (8 tests)
-
-**Total: 29 tests** ✅
 
 ## Project Structure
 
 ```
 src/
-├── config.py             # Application configuration (AppConfig)
-├── llm/                  # LLM provider module
-│   ├── __init__.py       # Main exports
-│   ├── types.py          # Type definitions (ModelId, Provider)
-│   ├── factory.py        # LLM factory and provider detection
-│   ├── anthropic.py      # Anthropic/Claude provider
-│   └── openai.py         # OpenAI/GPT provider
-└── content/
-    ├── models.py         # Pydantic models for Content, Summary, Source
-    └── loader/
-        ├── base.py       # BaseLoader abstract class
-        ├── magic.py      # MagicLoader implementation
-        ├── detector.py   # Content type detection
-        ├── summarizer.py # LLM-powered summarization
-        └── wrappers/     # LangChain loader wrappers
-            ├── web_loader.py
-            ├── pdf_loader.py
-            ├── youtube_loader.py
-            └── text_loader.py
-
-tests/
-├── test_config.py        # Configuration tests
-├── test_detector.py      # Detection tests
-├── test_llm.py           # LLM module tests
-└── test_magic_loader.py  # MagicLoader tests
+├── content/          # Content loading and analysis
+│   ├── loader/       # Magic loader with auto-detection
+│   └── analysis/     # Genre classification and topics
+├── course/           # Course generation system
+│   ├── generator.py  # Main course generation
+│   ├── merger.py     # Multi-content merging
+│   └── strategies/   # Genre-specific strategies
+└── config.py         # Configuration management
 
 examples/
-└── demo.py              # Interactive demo script
+├── app.py            # 🎨 Interactive TUI application
+├── demo.py           # Content loading demo
+├── test_course_generation.py
+└── generate_course_from_url.py
 ```
-
-## Configuration
-
-The application uses a YAML-based configuration system. Edit `config.yaml` to customize settings:
-
-```yaml
-# config.yaml
-models:
-  summarization:
-    model_id: claude-3-5-sonnet-20241022
-    temperature: 0.3
-    max_tokens: 4096
-    timeout: 60.0
-
-  # You can add more model configs for different tasks
-  # analysis:
-  #   model_id: gpt-4o
-  #   temperature: 0.5
-  #   max_tokens: 2048
-  #   timeout: 30.0
-```
-
-You can also load custom config files programmatically:
-
-```python
-from pathlib import Path
-from src.config import get_config, reload_config
-
-# Load from custom path
-config = get_config(Path("my_custom_config.yaml"))
-
-# Get model config for a specific task
-model_config = config.get_model_config("summarization")
-
-# Create LLM for a specific task
-llm = config.create_llm("summarization")
-
-# Reload config after changes
-config = reload_config()
-```
-
-### Supported Models
-
-**Anthropic:**
-- `claude-3-5-sonnet-20241022` (default)
-- `claude-3-5-haiku-20241022`
-- `claude-3-opus-20240229`
-
-**OpenAI:**
-- `gpt-4o`
-- `gpt-4-turbo`
-- `gpt-4o-mini`
-- `gpt-3.5-turbo`
-
-### Environment Variables
-
-API keys are loaded automatically from a `.env` file in the project root:
-
-```bash
-# Copy the example file
-cp .example.env .env
-
-# Edit .env and add your key(s)
-# ANTHROPIC_API_KEY=your_anthropic_key
-# OPENAI_API_KEY=your_openai_key
-```
-
-Alternatively, you can still set them as environment variables:
-```bash
-export ANTHROPIC_API_KEY=your_anthropic_key
-# OR
-export OPENAI_API_KEY=your_openai_key
-```
-
-The system automatically detects which provider to use based on the model ID.
 
 ## Requirements
 
 - Python 3.13+
-- API key for your chosen LLM provider (Anthropic or OpenAI)
+- API key for Anthropic or OpenAI
 
-# Plan
+## What's Next
 
-- Summarize YT videos
-    - Pull from playlist?
-    - Exract the transcript
-    - Exract core concepts
-- Create quizzes to help with recall
-    - Create a learning plan
-    - Create a cron job schedule
-    - Push quizzes
-- Generate on a daily basis
-    - Cron job to generate quizzes
-    - Notify via email
+- 🎯 **Activity Generation** - Quizzes, challenges, and games
+- 📊 **Progress Tracking** - Monitor learner progress
+- 🔄 **Daily Challenges** - Automated practice generation
+- 🤖 **Adaptive Learning** - Adjust difficulty based on performance
 
-# Research
-- https://github.com/jimmc414/onefilellm
-    - Extract multiple different sources into a single file
-    - CLI/Python lib
+## Contributing
+
+Contributions welcome! Please feel free to submit issues and pull requests.
+
+## License
+
+MIT License - see [LICENSE](LICENSE) for details
